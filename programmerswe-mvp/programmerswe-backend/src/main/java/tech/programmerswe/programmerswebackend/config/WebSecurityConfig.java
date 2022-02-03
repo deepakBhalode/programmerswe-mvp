@@ -1,6 +1,7 @@
 package tech.programmerswe.programmerswebackend.config;
 
 import javax.annotation.Resource;
+
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -18,8 +19,16 @@ import org.springframework.security.config.annotation.authentication.builders.Au
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 
 import tech.programmerswe.programmerswebackend.authentication.JwtFilter;
+import tech.programmerswe.programmerswebackend.utility.Route;
 import tech.programmerswe.programmerswebackend.authentication.JwtAuthenticationEntryPoint;
 
+/**
+ * This class comprises of method which handles the various configurations
+ * required for application security and efficiency
+ * 
+ * @author Deepak Bhalode
+ *
+ */
 @Configuration
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(prePostEnabled = true)
@@ -30,16 +39,6 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     	  
     @Resource(name = "authenticationService")
     private UserDetailsService userDetailsService;
-	
-	@Bean
-    public BCryptPasswordEncoder encoder() {
-        return new BCryptPasswordEncoder();
-    }
-    
-    @Bean
-    public ModelMapper modelMapper() {
-        return new ModelMapper();
-    }
     
     @Bean
     @Override
@@ -63,8 +62,8 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         		.csrf().disable()
                 .authorizeRequests()
                 .antMatchers(
-                		"/authenticate/authenticate-user", 
-                		"/user/register"
+                		Route.USER + Route.REGISTER,
+                		Route.AUTHENTICATE + Route.AUTHENTICATE_USER
                 )
                 .permitAll()
                 .anyRequest().authenticated()
@@ -74,6 +73,16 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
 
         http.addFilterBefore(authenticationTokenFilterBean(), UsernamePasswordAuthenticationFilter.class);
+    }
+    
+    @Bean
+    public BCryptPasswordEncoder encoder() {
+        return new BCryptPasswordEncoder();
+    }
+    
+    @Bean
+    public ModelMapper modelMapper() {
+        return new ModelMapper();
     }
     
 }
