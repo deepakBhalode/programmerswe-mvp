@@ -7,13 +7,12 @@ import java.util.Date;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.stereotype.Component;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.stereotype.Component;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
@@ -25,15 +24,6 @@ import io.jsonwebtoken.SignatureAlgorithm;
 public class JwtUtility implements Serializable {
 
 	private static final long serialVersionUID = 5416416315602515042L;
-
-	@Value("${jwt.token.validity}")
-    public long TOKEN_VALIDITY;
-
-    @Value("${jwt.signing.key}")
-    public String SIGNING_KEY;
-
-    @Value("${jwt.authorities.key}")
-    public String AUTHORITIES_KEY;
 
     public String getUsernameFromToken(String token) {
         return getClaimFromToken(token, Claims::getSubject);
@@ -50,7 +40,7 @@ public class JwtUtility implements Serializable {
 
     private Claims getAllClaimsFromToken(String token) {
         return Jwts.parser()
-                .setSigningKey(SIGNING_KEY)
+                .setSigningKey(Constant.SIGNING_KEY)
                 .parseClaimsJws(token)
                 .getBody();
     }
@@ -67,10 +57,10 @@ public class JwtUtility implements Serializable {
 
         return Jwts.builder()
                 .setSubject(authentication.getName())
-                .claim(AUTHORITIES_KEY, authorities)
+                .claim(Constant.AUTHORITIES_KEY, authorities)
                 .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis() + TOKEN_VALIDITY*1000))
-                .signWith(SignatureAlgorithm.HS256, SIGNING_KEY)
+                .setExpiration(new Date(System.currentTimeMillis() + Constant.TOKEN_VALIDITY*1000))
+                .signWith(SignatureAlgorithm.HS256, Constant.SIGNING_KEY)
                 .compact();
     }
 
@@ -81,11 +71,11 @@ public class JwtUtility implements Serializable {
 
     public UsernamePasswordAuthenticationToken getAuthenticationToken(final String token, final Authentication existingAuth, final UserDetails userDetails) {
 
-        final JwtParser jwtParser = Jwts.parser().setSigningKey(SIGNING_KEY);
+        final JwtParser jwtParser = Jwts.parser().setSigningKey(Constant.SIGNING_KEY);
         final Jws<Claims> claimsJws = jwtParser.parseClaimsJws(token);
         final Claims claims = claimsJws.getBody();
         final Collection<? extends GrantedAuthority> authorities =
-                Arrays.stream(claims.get(AUTHORITIES_KEY).toString().split(","))
+                Arrays.stream(claims.get(Constant.AUTHORITIES_KEY).toString().split(","))
                         .map(SimpleGrantedAuthority::new)
                         .collect(Collectors.toList());
 
