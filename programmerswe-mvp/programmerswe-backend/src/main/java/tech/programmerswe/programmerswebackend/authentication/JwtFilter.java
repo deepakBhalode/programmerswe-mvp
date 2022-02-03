@@ -9,24 +9,18 @@ import javax.servlet.http.HttpServletResponse;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.SignatureException;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.filter.OncePerRequestFilter;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 
+import tech.programmerswe.programmerswebackend.utility.Constant;
 import tech.programmerswe.programmerswebackend.utility.JwtUtility;
 
 public class JwtFilter extends OncePerRequestFilter {
-
-    @Value("${jwt.header.string}")
-    public String HEADER_STRING;
-
-    @Value("${jwt.token.prefix}")
-    public String TOKEN_PREFIX;
 
     @Resource(name = "authenticationService")
     private UserDetailsService userDetailsService;
@@ -35,23 +29,18 @@ public class JwtFilter extends OncePerRequestFilter {
     private JwtUtility jwtTokenUtil;
     
     /**
-     * Constructors
-     */
-    public JwtFilter() {}
-
-    /**
      * 
      */
     @Override
     protected void doFilterInternal(
     	HttpServletRequest req, HttpServletResponse res, FilterChain chain
     ) throws IOException, ServletException {
-        String header = req.getHeader(HEADER_STRING);
+        String header = req.getHeader(Constant.HEADER_STRING);
         String username = null;
         String authToken = null;
         
-        if (header != null && header.startsWith(TOKEN_PREFIX)) {
-            authToken = header.replace(TOKEN_PREFIX,"");
+        if (header != null && header.startsWith(Constant.TOKEN_PREFIX)) {
+            authToken = header.replace(Constant.TOKEN_PREFIX,"");
             try {
                 username = jwtTokenUtil.getUsernameFromToken(authToken);
             } catch (IllegalArgumentException e) {

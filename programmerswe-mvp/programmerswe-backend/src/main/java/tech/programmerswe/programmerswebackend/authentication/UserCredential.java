@@ -1,5 +1,9 @@
 package tech.programmerswe.programmerswebackend.authentication;
 
+/**
+ * @author Deepak Bhalode
+ *
+ */
 public class UserCredential {
 
 	//properties
